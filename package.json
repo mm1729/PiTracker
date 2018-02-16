@@ -1,0 +1,28 @@
+{
+  "name": "pitracker",
+  "version": "1.0.0",
+  "description": "This is a Heroku tracker server used to connect multiple Raspberry Pi's to a ground station server. ",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mm1729/PiTracker.git"
+  },
+  "keywords": [
+    "raspberrypi"
+  ],
+  "author": "Moulindra Muchumari",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mm1729/PiTracker/issues"
+  },
+  "homepage": "https://github.com/mm1729/PiTracker#readme",
+  "dependencies": {
+    "ejs": "^2.5.5",
+    "express": "^4.14.0",
+    "nodemon": "^1.11.0"
+  }
+}
