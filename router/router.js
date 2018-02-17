@@ -10,6 +10,7 @@ router.get('/', function(req, res) {
                 console.log(err)
                 res.send("Error: " + err)
             } else {
+                console.log(result.rows)
                 res.render('../public/html/index', {results: result.rows})
             }
         })
