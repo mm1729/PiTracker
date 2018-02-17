@@ -3,10 +3,10 @@ import requests
 res_code = -1
 num_tries = 10
 
-#url = 'http://localhost:3000/update'
-url = 'https://raspitracker.herokuapp.com/update'
+url = 'http://172.31.237.179:3000/update'
+#url = 'https://raspitracker.herokuapp.com/update'
 payload = {'name' : 'test5',
-            'ip': '127.0.0.3',
+            'ip': '17.0.0.3',
             'port': '7080',
             'status': 'on'}
 while res_code != 200 and num_tries > 0:
