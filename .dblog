@@ -1,0 +1,10 @@
+raspitracker::DATABASE=> create table pi_clients (id serial unique, name text, ip text, port text, status text);
+CREATE TABLE
+raspitracker::DATABASE=> alter sequence pi_clients_id_seq restart with 1 increment by 1;
+ALTER SEQUENCE
+raspitracker::DATABASE=> alter table pi_clients add primary key (name);
+ALTER TABLE
+raspitracker::DATABASE=> grant usage, select on sequence pi_clients_id_seq to public;
+GRANT
+raspitracker::DATABASE=>  GRANT SELECT ON pi_clients TO PUBLIC;
+GRANT
