@@ -15,25 +15,27 @@
       <th>Port</th>
       <th>Status</th>
     </tr>
-    <tr>
+
         <% results.forEach(function(result){ %>
-          <tr>
+        <tr>
+          <td>
             <%= result.name %>
-          </tr>
-          <tr>
+          </td>
+          <td>
             <%= result.ip %>
-          </tr>
-          <tr>
+          </td>
+          <td>
             <%= result.port %>
-          </tr>
-          <tr>
+          </td>
+          <td>
             <%= result.status %>
-          </tr>
+          </td>
+        </tr>
         <% }) %>
-    </tr>
+
     
   </table>
 
-  <%= results %>
+
 </body>
 </html>
