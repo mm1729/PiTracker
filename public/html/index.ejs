@@ -8,6 +8,32 @@
 
 <body>
   Home Page for PiTracker
+  <table>
+    <tr>
+      <th>Name</th>
+      <th>IP</th>
+      <th>Port</th>
+      <th>Status</th>
+    </tr>
+    <tr>
+        <% results.forEach(function(result){ %>
+          <tr>
+            <%= result.name %>
+          </tr>
+          <tr>
+            <%= result.ip %>
+          </tr>
+          <tr>
+            <%= result.port %>
+          </tr>
+          <tr>
+            <%= result.status %>
+          </tr>
+        <% }) %>
+    </tr>
+    
+  </table>
+
   <%= results %>
 </body>
 </html>
