@@ -8,3 +8,14 @@ raspitracker::DATABASE=> grant usage, select on sequence pi_clients_id_seq to pu
 GRANT
 raspitracker::DATABASE=>  GRANT SELECT ON pi_clients TO PUBLIC;
 GRANT
+
+raspitracker::DATABASE=> truncate pi_clients;
+TRUNCATE TABLE
+raspitracker::DATABASE=> alter table pi_clients add column last_received timestamp;
+ALTER TABLE
+raspitracker::DATABASE=> alter table pi_clients alter column last_received set default now();
+ALTER TABLE
+raspitracker::DATABASE=> update pi_clients set last_received = NULL;
+UPDATE 0
+raspitracker::DATABASE=> alter table pi_clients add column frequency smallint;
+ALTER TABLE

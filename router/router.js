@@ -1,7 +1,6 @@
 var express = require('express')
 var router = express.Router()
 var pg = require('pg')
-var ping = require('ping')
 
 
 var devDB_URL = 'postgres://databaseuser:pitracker@localhost/pi_tracker'
