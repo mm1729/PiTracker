@@ -7,6 +7,7 @@ var ping = require('ping')
 var devDB_URL = 'postgres://databaseuser:pitracker@localhost/pi_tracker'
 
 router.get('/', function(req, res) {
+    refresh_connections()
     pg.connect((process.env.DATABASE_URL || devDB_URL) , function(err, client, done) {
         client.query('SELECT * FROM pi_clients', function(err, result) {
             done()
@@ -38,7 +39,7 @@ router.get('/update', function(req, res) {
                 console.log(result.rows)
                 data = result.rows[0]
                 if(data) {
-                    updateRow(update_data, function(err) {
+                    updateRow(update_data, true, function(err) {
                         if(err) {
                             logError('updateRow', err)
                             res.send("Error: " + err)
@@ -64,63 +65,71 @@ router.get('/update', function(req, res) {
     //res.sendStatus(200)
 })
 
-router.get('/checkClientConnectivity', function(req, res) {
+var refresh_connections = function() {
     pg.connect((process.env.DATABASE_URL || devDB_URL) , function(err, client, done) {
         client.query('SELECT * FROM pi_clients', function(err, result) {
             done()
             if(err) {
                 console.log(err)
-                res.send("Error: " + err)
             } else {
                 //console.log(result.rows)
                 //res.render('../public/html/index', {results: result.rows})
                 updateClientStatus(result.rows, function(numUpdated) {
                     console.log(numUpdated)
-                    res.sendStatus(200)
                 })
             }
         })
     })
-})
+}
 
 var updateClientStatus = function(data, callback) {
     let toBeUpdated = []
     let itemsProcessed = 0
     data.forEach(function(client) {
-       ping.sys.probe(client.ip, function(isAlive) {
-            if(isAlive && client.status === 'off') {
-                toBeUpdated.push({
-                    'name' : client.name,
-                    'ip' : client.ip,
-                    'port' : client.port,
-                    'status' : 'on'
-                })
-            } else if (!isAlive && client.status === 'on') {
-                toBeUpdated.push({
-                    'name' : client.name,
-                    'ip' : client.ip,
-                    'port' : client.port,
-                    'status' : 'off'
-                })
-            }
-            
-            if( ++itemsProcessed === data.length ) {
-                if (toBeUpdated.length == 0) {
-                    callback(0)
-                }
-                updateDatabase(toBeUpdated, function() {
-                    callback(toBeUpdated.length)
-                })
-            }
+        console.log(client.last_received)
+        let lastProcessed = new Date(client.last_received);
+        let isAlive = true
+        let now = new Date()
+        let diff = Math.abs((lastProcessed.getTime() - now.getTime()) / 1000)
+        
+        if ( diff > client.frequency) {
+            isAlive = false
+        }
 
-       })
+        if(isAlive && client.status === 'off') {
+            toBeUpdated.push({
+                'name' : client.name,
+                'ip' : client.ip,
+                'port' : client.port,
+                'status' : 'on',
+                'frequency' : client.frequency
+            })
+        } else if (!isAlive && client.status === 'on') {
+            toBeUpdated.push({
+                'name' : client.name,
+                'ip' : client.ip,
+                'port' : client.port,
+                'status' : 'off',
+                'frequency' : client.frequency
+            })
+        }
+        
+        if( ++itemsProcessed === data.length ) {
+            if (toBeUpdated.length == 0) {
+                callback(0)
+            }
+            updateDatabase(toBeUpdated, function() {
+                callback(toBeUpdated.length)
+            })
+        }
+        
     })
 }
 
 var updateDatabase = function(data, callback) {
     let doneChecking = 0
     data.forEach(function(row) {
-        updateRow(row, function(err) {
+        updateRow(row, false, function(err) {
             if (err) {
                 logError('updateDatabase', err)
             }
@@ -131,9 +140,17 @@ var updateDatabase = function(data, callback) {
     })
 }
 
-var updateRow = function(data, callback) {
+var updateRow = function(data, changeTimestamp, callback) {
     let query = "update pi_clients set ip='" + data.ip + "', port='" + data.port 
-    + "', status='" + data.status + "' where name='" + data.name + "'"
+    + "', status='" + data.status 
+    if ( changeTimestamp ) {
+        query += "', last_received=current_timestamp, frequency='" 
+        + data.frequency + "' where name='" + data.name + "'"
+    } else {
+        query += "',  frequency='" 
+        + data.frequency + "' where name='" + data.name + "'"
+    }
+
 
     pg.connect((process.env.DATABASE_URL || devDB_URL) , function(err, client, done) {
         client.query(query, function(err, result) {
@@ -145,7 +162,7 @@ var updateRow = function(data, callback) {
 
 var createRow = function(data, callback) {
     let query = "insert into pi_clients values (default, '" + data.name + "', '" + data.ip 
-    + "', '" + data.port + "', '" + data.status + "');"
+    + "', '" + data.port + "', '" + data.status + "', current_timestamp, '" + data.frequency +"');"
 
     pg.connect((process.env.DATABASE_URL || devDB_URL) , function(err, client, done) {
         client.query(query, function(err, result) {

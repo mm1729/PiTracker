@@ -12,7 +12,7 @@ console.log(path.join(__dirname, 'public'))
 app.use('/', router)
 
 app.listen(app.get('port'), function() {
-    console.log('SummaryHelp running on port ' + app.get('port'))
+    console.log('PiTracker running on port ' + app.get('port'))
 })
 
 module.exports = app;
